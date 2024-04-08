@@ -16,7 +16,7 @@ const fen = ref<string>(game.getFen());
 const flipBoard = ref(true);
 const history = ref<History[]>([]);
 
-const { data: bestmove } = await useFetch('/api/stockfish', {
+const { data: bestmove, status } = await useFetch('/api/stockfish', {
     query: {
         fen
     },
@@ -145,12 +145,14 @@ body {
     text-transform: capitalize;
 }
 
-.sidepanel button {
+.sidepanel button,
+.sidepanel .button {
     background: #279e1c;
     width: fit-content;
     color: #fff;
     padding: 0.5rem 1rem;
     font-size: 1rem;
+    border: 1px solid #000;
 }
 
 .sidepanel .toggle-perspective {
@@ -268,16 +270,16 @@ body {
             <div class="sidepanel">
                 <h1>Simple chess</h1>
                 <h2>Stockfish</h2>
+                <p>Status: {{ status }}</p>
                 <p>{{ bestmove }}</p>
                 <h2>Highlight</h2>
                 <p>{{ highlight }}</p>
                 <h2>Perspective</h2>
-                <label class="toggle-perspective">
-                    <button>
-                        <input type="checkbox" v-model="flipBoard">
-                        <span>Toggle {{ flipBoard ? 'white' : 'black' }}</span>
-                    </button>
+                <label class="toggle-perspective button">
+                    <input type="checkbox" v-model="flipBoard">
+                    <span>Toggle {{ flipBoard ? 'white' : 'black' }}</span>
                 </label>
+                <h2>Reset game</h2>
                 <button @click="handleResetClick">New game</button>
                 <h2>History</h2>
                 <div class="moves">
