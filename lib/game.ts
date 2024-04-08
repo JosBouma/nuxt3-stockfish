@@ -44,6 +44,10 @@ export default class Game {
         return this.game.fen();
     }
 
+    public setFen(fen: string) {
+        this.game.load(fen);
+    }
+
     public getMoves(square: Square) {
         return this.game.moves({ square, verbose: true }).map(s => s.to);
     }
@@ -71,5 +75,9 @@ export default class Game {
 
     public state(): State {
         return this.game.isGameOver() ? 'gameover' : 'idle';
+    }
+
+    public gethistory() {
+        return this.game.history();
     }
 }

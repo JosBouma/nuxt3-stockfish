@@ -2,30 +2,46 @@
 import { type Square } from 'chess.js';
 import Game, { type Cell } from './lib/game';
 
+interface History {
+    from: Cell;
+    to: Square;
+    fen: string;
+    index: number;
+}
+
 const game = new Game();
 const moveFrom = ref<Cell | null>(null);
-const highlight = ref<Square[]>([]);
 const ascii = ref<string>(game.getAscii());
 const fen = ref<string>(game.getFen());
 const flipBoard = ref(true);
+const history = ref<History[]>([]);
 
-const board = computed(() => {
-    return game.getBoard(highlight.value, flipBoard.value);
-});
-
-const { data: bestmove } = useFetch('/api/stockfish', {
+const { data: bestmove } = await useFetch('/api/stockfish', {
     query: {
         fen
     },
-    transform(res: string[]): string {
+    transform(res: string[]): Square[] {
         let bestmove = res.pop() || '';
-        highlight.value = [
+        return [
             bestmove.substring(9, 11) as Square,
             bestmove.substring(11, 13) as Square,
         ];
-        return bestmove;
     }
 });
+
+const highlight = ref<Square[]>([]);
+
+const board = computed(() => {
+    const moves = unref(bestmove) || [];
+    return game.getBoard(
+        [
+            ...moves,
+            ...highlight.value
+        ],
+        flipBoard.value
+    );
+});
+
 
 function handleCellClick(cell: Cell) {
     const { piece } = cell;
@@ -38,6 +54,7 @@ function handleCellClick(cell: Cell) {
         return;
     }
 
+    // If piece has nothing to do
     if (!from || !game.canMove(from.name, cell.name)) {
         return;
     }
@@ -48,10 +65,25 @@ function handleCellClick(cell: Cell) {
     highlight.value = [];
     ascii.value = game.getAscii();
     fen.value = game.getFen();
+    history.value.push({
+        from,
+        to: cell.name,
+        fen: game.getFen(),
+        index: history.value.length
+    });
 }
 
-function handleResetClikc() {
+function handleResetClick() {
     game.reset();
+    highlight.value = [];
+    ascii.value = game.getAscii();
+    fen.value = game.getFen();
+}
+
+function handleHistoryClick(move: History) {
+    game.setFen(move.fen);
+    history.value = history.value.slice(0, move.index + 1);
+    moveFrom.value = null;
     highlight.value = [];
     ascii.value = game.getAscii();
     fen.value = game.getFen();
@@ -90,16 +122,16 @@ body {
 
 #interface {
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-    padding: 2rem;
+    grid-template-columns: 1fr 6fr;
 }
 
 .sidepanel {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    max-width: 12rem;
+    background: #eee;
+    padding: 1rem;
+    min-width: 12rem;
 }
 
 .sidepanel .fen {
@@ -116,10 +148,28 @@ body {
 .sidepanel button {
     background: #279e1c;
     width: fit-content;
-    margin: 0 auto auto auto;
     color: #fff;
     padding: 0.5rem 1rem;
-    font-size: 2rem;
+    font-size: 1rem;
+}
+
+.sidepanel .toggle-perspective {
+    user-select: none;
+}
+
+.sidepanel .toggle-perspective input {
+    display: none;
+}
+
+.sidepanel .moves {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.sidepanel .moves button {
+    font-size: 0.8rem;
 }
 
 #board {
@@ -129,6 +179,7 @@ body {
     grid-template-rows: repeat(8, var(--cell-size));
     width: calc(var(--cell-size) * 8);
     height: calc(var(--cell-size) * 8);
+    user-select: none;
 }
 
 #board .cell {
@@ -216,23 +267,29 @@ body {
         <client-only>
             <div class="sidepanel">
                 <h1>Simple chess</h1>
-                <h2>ASCII</h2>
-                <pre>{{ ascii }}</pre>
-                <h2>FEN</h2>
-                <p class="fen">{{ fen }}</p>
                 <h2>Stockfish</h2>
                 <p>{{ bestmove }}</p>
                 <h2>Highlight</h2>
                 <p>{{ highlight }}</p>
                 <h2>Perspective</h2>
-                <label>
-                    <input type="checkbox" v-model="flipBoard">
-                    <span>Toggle {{ flipBoard ? 'white' : 'black' }}</span>
+                <label class="toggle-perspective">
+                    <button>
+                        <input type="checkbox" v-model="flipBoard">
+                        <span>Toggle {{ flipBoard ? 'white' : 'black' }}</span>
+                    </button>
                 </label>
-                <button @click="handleResetClikc">New game</button>
+                <button @click="handleResetClick">New game</button>
+                <h2>History</h2>
+                <div class="moves">
+                    <p v-for="point in (history.slice().reverse())" :key="point.index">
+                        <button @click="handleHistoryClick(point)">
+                            <span :class="point.from.piece?.color">({{ point.index + 1 }}) {{ point.from.name }} {{ point.to }}</span>
+                        </button>
+                    </p>
+                </div>
             </div>
             <div id="board">
-                <p v-for="cell in board" :class="getCellClass(cell)" @click="handleCellClick(cell)">
+                <p v-for="cell in board" :class="getCellClass(cell)" @click="handleCellClick(cell)" :key="cell.name">
                     <span :class="getPieceClass(cell)">{{ cell.name }}</span>
                 </p>
             </div>
