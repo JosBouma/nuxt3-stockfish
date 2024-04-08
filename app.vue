@@ -76,6 +76,7 @@ function handleCellClick(cell: Cell) {
 function handleResetClick() {
     game.reset();
     highlight.value = [];
+    history.value = [];
     ascii.value = game.getAscii();
     fen.value = game.getFen();
 }
