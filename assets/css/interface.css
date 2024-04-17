@@ -1,0 +1,100 @@
+:root {
+  --cell-size: 80px;
+  --color-alt: rgb(100, 151, 103);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+#interface {
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+#board {
+  display: grid;
+  width: calc(var(--cell-size) * 8);
+  height: calc(var(--cell-size) * 8);
+  border: 2px solid #767676;
+  grid-template-columns: repeat(8, var(--cell-size));
+}
+
+#board .cell {
+  position: relative;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: grid;
+}
+
+#board .cell.color-b {
+  background: var(--color-alt);
+}
+
+#board .cell p {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  color: #fff;
+  text-shadow: 1px 1px 3px #000;
+  font-weight: bold;
+}
+
+#board .cell.color-w p {
+  color: #000;
+  text-shadow: 1px 1px 2px #b5b5b5;
+}
+
+#board .cell .highlight,
+#board .cell .bestmove {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  width: calc(var(--cell-size) /4);
+  height: calc(var(--cell-size) /4);
+  background: #444fa5aa;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+#board .cell .bestmove {
+  background: rgba(0, 255, 38, 0.486);
+}
+
+#board .cell .highlight.active,
+#board .cell .bestmove.active {
+  opacity: 1;
+}
+
+#sidepanel {
+  display: grid;
+  gap: 1rem;
+  grid-template-rows: auto auto auto auto auto 1fr;
+}
+
+#fen {
+  word-break: break-all;
+  max-width: 120px;
+  font-size: 0.75rem;
+}
+
+#sidepanel .buttons,
+#sidepanel .moves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+#sidepanel .buttons button,
+#sidepanel .moves button {
+  color: #fff;
+  padding: 0.5rem;
+  background: var(--color-alt);
+  box-shadow: 1px 1px 1px #000;
+}
