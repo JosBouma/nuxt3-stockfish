@@ -120,11 +120,18 @@ function handleHistoryClick(move: History) {
     </div>
     <div id="sidepanel">
       <h1>FEN</h1>
-      <p id="fen">{{ fen }}</p>
+      <p class="fen">{{ fen }}</p>
       <h2>Controls</h2>
       <div class="buttons">
         <button @click="flipBoard = !flipBoard">Flip view</button>
         <button @click="handleNewGameClick">New game</button>
+      </div>
+      <h2>Promotion</h2>
+      <div class="promotions">
+        <chess-piece :owner="flipBoard ? 'b' : 'w'" type="q" />
+        <chess-piece :owner="flipBoard ? 'b' : 'w'" type="r" />
+        <chess-piece :owner="flipBoard ? 'b' : 'w'" type="b" />
+        <chess-piece :owner="flipBoard ? 'b' : 'w'" type="n" />
       </div>
       <h2>Moves</h2>
       <div class="moves">

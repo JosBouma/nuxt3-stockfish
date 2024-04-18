@@ -11,10 +11,10 @@
 }
 
 #interface {
-  padding: 1rem;
+  padding: 0.5rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 #board {
@@ -75,13 +75,8 @@
 #sidepanel {
   display: grid;
   gap: 1rem;
-  grid-template-rows: auto auto auto auto auto 1fr;
-}
-
-#fen {
-  word-break: break-all;
-  max-width: 120px;
-  font-size: 0.75rem;
+  grid-template-rows: repeat(7, auto) 1fr;
+  max-width: 14rem;
 }
 
 #sidepanel .buttons,
@@ -97,4 +92,13 @@
   padding: 0.5rem;
   background: var(--color-alt);
   box-shadow: 1px 1px 1px #000;
+}
+
+#sidepanel .fen {
+  word-break: break-all;
+  font-size: 0.75rem;
+}
+
+#sidepanel .promotions {
+  display: flex;
 }
