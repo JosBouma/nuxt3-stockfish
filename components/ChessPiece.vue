@@ -1,22 +1,20 @@
 <script lang="ts" setup>
-import type { PieceSymbol, Square, Color } from 'chess.js';
+import type { Piece } from 'chess.js';
 
 const props = defineProps({
-  owner: {
-    type: String as PropType<Color>,
+  piece: {
+    type: Object as PropType<Piece>,
     required: true
-  },
-  type: {
-    type: String as PropType<PieceSymbol>,
-    required: true
-  },
-
+  }
 });
 
 const pieceClass = computed(() => {
+  if(!props.piece) {
+    return ['type-none'];
+  }
   return [
-    `color-${props.owner}`,
-    `type-${props.type}`,
+    `color-${props.piece.color}`,
+    `type-${props.piece.type}`,
   ];
 })
 </script>
@@ -25,19 +23,29 @@ const pieceClass = computed(() => {
 .chess-piece {
   --pos-x: 0;
   --pos-y: 0;
-  width: calc(var(--cell-size) / 1.25);
-  height: calc(var(--cell-size) / 1.25);
-  grid-row: 1;
-  grid-column: 1;
-  margin: auto;
+  width: calc(var(--cell-size) / 1.1);
+  height: calc(var(--cell-size) / 1.1);
   background: url('~/assets/svg/pieces.svg');
   background-size: 600%;
   background-position: calc(var(--pos-y) * 100%) calc(var(--pos-x) * 100%);
-  filter: drop-shadow(1px 2px 1px #000000);
+  transform: translateX(1%) translateY(-1%);
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+.chess-piece:hover {
+  transform: scale(1.1);
+  transform-origin: center;
+}
+
+.chess-piece.type-none {
+  background: none;
 }
 
 .chess-piece.color-b {
     --pos-x: 1;
+    filter: drop-shadow(1px 2px 1px #d88c8c);
+    opacity: 0.7;
 }
 
 .chess-piece.type-p {
